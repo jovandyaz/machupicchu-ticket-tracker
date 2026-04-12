@@ -2,6 +2,8 @@
 
 Automated monitoring of Machu Picchu ticket availability — the 1,000 daily tickets sold at the Aguas Calientes Cultural Center.
 
+**Dashboard:** [jovandyaz.github.io/machupicchu-ticket-tracker](https://jovandyaz.github.io/machupicchu-ticket-tracker/)
+
 ## Context
 
 Since April 2025, Machu Picchu tickets are **only sold in person** at the Centro Cultural de Aguas Calientes. No online purchases. The government issues 1,000 tickets per day, split across 6 routes in 3 circuits.
@@ -23,10 +25,16 @@ The ticket office operates daily from **3:00 PM to 10:00 PM** (Peru time, UTC-5)
 
 ## How It Works
 
-A GitHub Action runs every 10 minutes (5 AM — 11 PM Peru time) and queries the [tuboleto.cultura.pe](https://tuboleto.cultura.pe/cusco/1000boletos) API to record:
+Two pieces, one repo:
 
-- **Tickets sold today** (total counter at ticket office)
-- **Availability per route** for the next day (capacity, sold, available)
+1. **Tracker** — a GitHub Action runs every 10 minutes (5 AM — 11 PM Peru time) and queries the [tuboleto.cultura.pe](https://tuboleto.cultura.pe/cusco/1000boletos) API to record tickets sold today and per-route availability for tomorrow. Data is appended to `data/*.jsonl` and committed back.
+2. **Dashboard** — an Astro + React site at [`web/`](web/) that preprocesses the JSONL into aggregated JSON at build time, then renders four views:
+   - **Hoy** — live KPIs, per-route grid, sales velocity chart, sold-out projection. Polls raw JSONL from GitHub every 60s via TanStack Query.
+   - **Histórico** — calendar heatmap and day-by-day table.
+   - **Rutas** — comparative view across the six circuits.
+   - **Patrones** — peak hour, weekday, and month demand patterns.
+
+The site is deployed to GitHub Pages automatically on every push to `web/**` and once daily at midnight Peru time.
 
 ## Data Structure
 
@@ -78,3 +86,17 @@ Each line in a `.jsonl` file:
 ```bash
 ./scripts/backfill-daily-totals.sh 2025-04-01 2026-04-12
 ```
+
+## Dashboard (web/)
+
+```bash
+cd web
+pnpm install
+pnpm dev            # local dev at http://localhost:4321/machupicchu-ticket-tracker/
+pnpm build:data     # preprocess JSONL into public/data/*.json
+pnpm build          # build:data + astro build → web/dist/
+pnpm test           # run vitest suite (aggregation + projection logic)
+pnpm check          # astro check (typescript)
+```
+
+Stack: Astro 6, React 19, TypeScript strict, Tailwind v4, shadcn/ui, TanStack Query, Recharts, Zod, Motion. Deployed on GitHub Pages via [`.github/workflows/deploy-web.yml`](.github/workflows/deploy-web.yml).
