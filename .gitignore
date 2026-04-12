@@ -1,0 +1,10 @@
+web/node_modules
+web/dist
+web/.astro
+web/.turbo
+
+.playwright-mcp/
+*.png
+
+# macOS
+.DS_Store
