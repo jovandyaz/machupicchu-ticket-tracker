@@ -1,0 +1,22 @@
+---
+import Base from "@layouts/Base.astro";
+import { TodayView } from "@components/islands/TodayView";
+
+const buildTime = new Date().toISOString().slice(11, 16);
+const current = Astro.url.pathname;
+---
+
+<Base title="Hoy — Machu Picchu Ticket Log" current={current} lastUpdated={buildTime}>
+  <main class="space-y-8 p-8">
+    <header>
+      <p class="font-mono text-[10px] tracking-[0.2em] text-fg-subtle uppercase">
+        Field log entry · today
+      </p>
+      <h1 class="mt-2 font-display text-4xl text-fg">Hoy</h1>
+      <p class="mt-1 font-sans text-fg-muted">
+        Boletos para mañana, actualizado cada 60 s.
+      </p>
+    </header>
+    <TodayView client:load />
+  </main>
+</Base>
