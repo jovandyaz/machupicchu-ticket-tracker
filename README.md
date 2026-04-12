@@ -1,34 +1,34 @@
 # Machu Picchu Ticket Tracker
 
-Monitoreo automatizado de la disponibilidad de boletos de Machu Picchu (1,000 boletos diarios vendidos en el Centro Cultural de Aguas Calientes).
+Automated monitoring of Machu Picchu ticket availability (1,000 daily tickets sold at the Aguas Calientes Cultural Center).
 
-## Datos recolectados
+## Collected Data
 
-Cada 10 minutos, un GitHub Action consulta la API de [tuboleto.cultura.pe](https://tuboleto.cultura.pe/cusco/1000boletos) y registra:
+Every 10 minutes, a GitHub Action queries the [tuboleto.cultura.pe](https://tuboleto.cultura.pe/cusco/1000boletos) API and records:
 
-- **Boletos vendidos del día** (total)
-- **Disponibilidad por ruta** (aforo, vendidos, disponibles):
-  - Ruta 1-A: Montaña Machupicchu (50 cupos)
-  - Ruta 1-B: Terraza Superior (100 cupos)
-  - Ruta 2-A: Clásico Diseñada (600 cupos)
-  - Ruta 2-B: Terraza Inferior (100 cupos)
-  - Ruta 3-A: Montaña Waynapicchu (50 cupos)
-  - Ruta 3-B: Realeza Diseñada (100 cupos)
+- **Tickets sold today** (total)
+- **Availability per route** (capacity, sold, available):
+  - Ruta 1-A: Montaña Machupicchu (50 slots)
+  - Ruta 1-B: Terraza Superior (100 slots)
+  - Ruta 2-A: Clásico Diseñada (600 slots)
+  - Ruta 2-B: Terraza Inferior (100 slots)
+  - Ruta 3-A: Montaña Waynapicchu (50 slots)
+  - Ruta 3-B: Realeza Diseñada (100 slots)
 
-## Estructura de datos
+## Data Structure
 
 ```
 data/
-├── daily-totals/          # Totales diarios históricos (backfill)
+├── daily-totals/          # Historical daily totals (backfill)
 │   ├── 2025-04.jsonl
 │   └── ...
 ├── 2026/
 │   └── 04/
-│       ├── 2026-04-12.jsonl   # Lecturas cada 10 min con desglose por ruta
+│       ├── 2026-04-12.jsonl   # Readings every 10 min with per-route breakdown
 │       └── ...
 ```
 
-Cada línea en un `.jsonl` es un registro JSON con esta estructura:
+Each line in a `.jsonl` file is a JSON record with this structure:
 
 ```json
 {
@@ -54,15 +54,15 @@ Cada línea en un `.jsonl` es un registro JSON con esta estructura:
 
 ## Setup
 
-1. Configurar el secret `TUBOLETO_SECRET_KEY` en el repo
-2. El GitHub Action corre automáticamente cada 10 minutos
+1. Set the `TUBOLETO_SECRET_KEY` secret in the repo
+2. The GitHub Action runs automatically every 10 minutes
 
 ## Scripts
 
-- `scripts/fetch-availability.js` - Consulta la API y guarda datos (ejecutado por GitHub Actions)
-- `scripts/backfill-daily-totals.sh` - Rellena totales históricos para un rango de fechas
+- `scripts/fetch-availability.js` - Queries the API and saves data (run by GitHub Actions)
+- `scripts/backfill-daily-totals.sh` - Backfills historical daily totals for a date range
 
-## Backfill de datos históricos
+## Backfill Historical Data
 
 ```bash
 ./scripts/backfill-daily-totals.sh 2025-04-01 2026-04-12
