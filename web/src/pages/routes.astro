@@ -1,0 +1,33 @@
+---
+import Base from "@layouts/Base.astro";
+import { RoutesComparison } from "@components/islands/RoutesComparison";
+import type { RouteStats } from "@/lib/types/aggregates";
+
+const routeFiles = import.meta.glob<RouteStats>(
+  "../../public/data/routes/*.json",
+  { eager: true, import: "default" },
+);
+const routes: RouteStats[] = Object.values(routeFiles);
+const buildTime = new Date().toISOString().slice(11, 16);
+const current = Astro.url.pathname;
+---
+
+<Base
+  title="Rutas — Machu Picchu Ticket Log"
+  current={current}
+  lastUpdated={buildTime}
+>
+  <main class="space-y-8 p-8">
+    <header>
+      <p class="font-mono text-[10px] tracking-[0.2em] text-fg-subtle uppercase">
+        Field log entry · routes
+      </p>
+      <h1 class="mt-2 font-display text-4xl text-fg">Rutas</h1>
+      <p class="mt-1 font-sans text-fg-muted">
+        Comparativo entre los seis circuitos. Ocupación, velocidad y
+        frecuencia de agotamiento.
+      </p>
+    </header>
+    <RoutesComparison routes={routes} client:load />
+  </main>
+</Base>

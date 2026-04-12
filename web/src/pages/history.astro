@@ -1,0 +1,30 @@
+---
+import Base from "@layouts/Base.astro";
+import { HistoryHeatmap } from "@components/islands/HistoryHeatmap";
+import dailyIndex from "../../public/data/daily-index.json";
+import type { DailySummary } from "@/lib/types/aggregates";
+
+const summaries = dailyIndex as DailySummary[];
+const buildTime = new Date().toISOString().slice(11, 16);
+const current = Astro.url.pathname;
+---
+
+<Base
+  title="Histórico — Machu Picchu Ticket Log"
+  current={current}
+  lastUpdated={buildTime}
+>
+  <main class="space-y-8 p-8">
+    <header>
+      <p class="font-mono text-[10px] tracking-[0.2em] text-fg-subtle uppercase">
+        Field log entry · archive
+      </p>
+      <h1 class="mt-2 font-display text-4xl text-fg">Histórico</h1>
+      <p class="mt-1 font-sans text-fg-muted">
+        Calendario de demanda diaria. Cada cuadro es un día; el color indica
+        qué tan cerca estuvo de agotarse.
+      </p>
+    </header>
+    <HistoryHeatmap summaries={summaries} client:load />
+  </main>
+</Base>

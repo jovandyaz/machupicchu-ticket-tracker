@@ -1,0 +1,29 @@
+---
+import Base from "@layouts/Base.astro";
+import { PatternsInsights } from "@components/islands/PatternsInsights";
+import patternsData from "../../public/data/patterns.json";
+import type { Patterns } from "@/lib/types/aggregates";
+
+const patterns = patternsData as Patterns;
+const buildTime = new Date().toISOString().slice(11, 16);
+const current = Astro.url.pathname;
+---
+
+<Base
+  title="Patrones — Machu Picchu Ticket Log"
+  current={current}
+  lastUpdated={buildTime}
+>
+  <main class="space-y-8 p-8">
+    <header>
+      <p class="font-mono text-[10px] tracking-[0.2em] text-fg-subtle uppercase">
+        Field log entry · patterns
+      </p>
+      <h1 class="mt-2 font-display text-4xl text-fg">Patrones</h1>
+      <p class="mt-1 font-sans text-fg-muted">
+        Observaciones sobre hora, día y mes a partir del registro acumulado.
+      </p>
+    </header>
+    <PatternsInsights patterns={patterns} client:load />
+  </main>
+</Base>
