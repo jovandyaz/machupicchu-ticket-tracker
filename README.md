@@ -2,55 +2,31 @@
 
 Automated monitoring of Machu Picchu ticket availability — the 1,000 daily tickets sold at the Aguas Calientes Cultural Center.
 
+## Context
+
+Since April 2025, Machu Picchu tickets are **only sold in person** at the Centro Cultural de Aguas Calientes. No online purchases. The government issues 1,000 tickets per day, split across 6 routes in 3 circuits.
+
+The ticket office operates daily from **3:00 PM to 10:00 PM** (Peru time, UTC-5), selling tickets for the **next day** only. Tickets often sell out — especially during high season (June–August) and holidays.
+
 ## Routes
 
-| Route | Circuit | Capacity |
-|-------|---------|----------|
-| 1-A: Montana Machupicchu | Circuito 1 - Panoramico | 50 |
-| 1-B: Terraza Superior | Circuito 1 - Panoramico | 100 |
-| 2-A: Clasico Disenada | Circuito 2 - Clasico | 600 |
-| 2-B: Terraza Inferior | Circuito 2 - Clasico | 100 |
-| 3-A: Montana Waynapicchu | Circuito 3 - Realeza | 50 |
-| 3-B: Realeza Disenada | Circuito 3 - Realeza | 100 |
+| Route | Circuit | Capacity | Description |
+|-------|---------|----------|-------------|
+| 1-A: Montana Machupicchu | Circuito 1 - Panoramico | 50 | Hike to Montana Machupicchu summit |
+| 1-B: Terraza Superior | Circuito 1 - Panoramico | 100 | Upper terrace panoramic views |
+| 2-A: Clasico Disenada | Circuito 2 - Clasico | 600 | Classic route — most popular |
+| 2-B: Terraza Inferior | Circuito 2 - Clasico | 100 | Lower terrace circuit |
+| 3-A: Montana Waynapicchu | Circuito 3 - Realeza | 50 | Hike to Waynapicchu peak |
+| 3-B: Realeza Disenada | Circuito 3 - Realeza | 100 | Royalty circuit design route |
 
-## Log
-
-### 2026-04-12 — First day of tracking (target: Apr 13)
-
-Sales started around **6:00 AM Peru time**. By 12:30 PM, 279 out of 1,000 tickets were sold (28%).
-
-| Time (PET) | Sold today | Sold tomorrow | Available |
-|------------|-----------|---------------|-----------|
-| 02:49 | 0 | 0 | 1,000 |
-| 06:13 | 45 | 11 | 989 |
-| 07:01 | 65 | 58 | 942 |
-| 08:44 | 145 | 134 | 866 |
-| 10:02 | 194 | 179 | 821 |
-| 11:00 | 234 | 227 | 773 |
-| 12:30 | 291 | 279 | 721 |
-
-**Route breakdown at 12:30 PM:**
-
-| Route | Sold | Capacity | % |
-|-------|------|----------|---|
-| 2-A: Clasico Disenada | 228 | 600 | 38% |
-| 2-B: Terraza Inferior | 34 | 100 | 34% |
-| 3-A: Montana Waynapicchu | 9 | 50 | 18% |
-| 3-B: Realeza Disenada | 4 | 100 | 4% |
-| 1-B: Terraza Superior | 3 | 100 | 3% |
-| 1-A: Montana Machupicchu | 1 | 50 | 2% |
-
-**Early observations:**
-- Route 2-A (Clasico) dominates demand — 82% of all sales
-- Sales velocity: ~40 tickets/hour in the morning
-- Mountain routes (1-A, 3-A) sell slowly compared to classic circuit
+**Total daily capacity: 1,000 tickets**
 
 ## How It Works
 
 A GitHub Action runs every 10 minutes (5 AM — 11 PM Peru time) and queries the [tuboleto.cultura.pe](https://tuboleto.cultura.pe/cusco/1000boletos) API to record:
 
-- **Tickets sold today** (total counter)
-- **Availability per route** (capacity, sold, available) for the next day
+- **Tickets sold today** (total counter at ticket office)
+- **Availability per route** for the next day (capacity, sold, available)
 
 ## Data Structure
 
