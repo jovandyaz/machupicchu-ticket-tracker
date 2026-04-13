@@ -8,16 +8,18 @@ import {
 } from "@/components/ui/chart";
 import { Card, CardContent } from "@/components/ui/card";
 import { CARD_HOVER } from "@/lib/styles";
+import { useTranslation } from "@/i18n/client";
 
 const chartConfig = {
   total_sold: {
-    label: "Vendidos",
+    label: "today.sold",
     color: "var(--color-accent)",
   },
 } satisfies ChartConfig;
 
 export function SalesVelocityChart() {
   const query = useTodayQuery();
+  const { t } = useTranslation(["today"]);
 
   if (query.isPending) {
     return (
@@ -34,7 +36,7 @@ export function SalesVelocityChart() {
       <Card className={CARD_HOVER}>
         <CardContent>
           <p className="font-mono text-xs text-fg-muted">
-            error cargando velocidad: {query.error.message}
+            {t("common.error", { ns: "common" })}: {query.error.message}
           </p>
         </CardContent>
       </Card>
@@ -47,10 +49,10 @@ export function SalesVelocityChart() {
       <Card className={CARD_HOVER}>
         <CardContent>
           <p className="font-mono text-[10px] tracking-[0.2em] text-fg-subtle uppercase">
-            Velocidad de ventas
+            {t("today.velocity_chart_title")}
           </p>
           <p className="mt-3 font-sans text-sm text-fg-muted">
-            Velocidad de ventas aparecerá conforme avance el día.
+            {t("today.velocity_chart_empty")}
           </p>
         </CardContent>
       </Card>
@@ -67,10 +69,10 @@ export function SalesVelocityChart() {
       <CardContent className="space-y-3">
         <div className="flex items-baseline justify-between">
           <p className="font-mono text-[10px] tracking-[0.2em] text-fg-subtle uppercase">
-            Velocidad de ventas
+            {t("today.velocity_chart_title")}
           </p>
           <p className="font-mono text-[10px] text-fg-subtle">
-            acumulado por lectura
+            {t("today.velocity_chart_subtitle")}
           </p>
         </div>
         <ChartContainer config={chartConfig} className="h-64 w-full">

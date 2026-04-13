@@ -8,12 +8,14 @@ import { PatternsHourChart } from "./patterns/PatternsHourChart";
 import { PatternsInsightCards } from "./patterns/PatternsInsightCards";
 import { PatternsMonthGrid } from "./patterns/PatternsMonthGrid";
 import { PatternsWeekdayRadar } from "./patterns/PatternsWeekdayRadar";
+import { useTranslation } from "@/i18n/client";
 
 interface PatternsInsightsProps {
   patterns: Patterns;
 }
 
 export function PatternsInsights({ patterns }: PatternsInsightsProps) {
+  const { t } = useTranslation(["patterns"]);
   const insufficientData =
     allZero(patterns.by_hour) &&
     allZero(patterns.by_weekday) &&
@@ -35,11 +37,10 @@ export function PatternsInsights({ patterns }: PatternsInsightsProps) {
         <Card className={CARD_HOVER}>
           <CardContent>
             <p className="font-display text-xl text-fg">
-              Solo llevamos 1 día de tracking
+              {t("patterns.insufficient_title")}
             </p>
             <p className="mt-1 font-sans text-sm text-fg-muted">
-              Esta vista tendrá más historia pronto — los patrones son más
-              expresivos con varias semanas acumuladas.
+              {t("patterns.insufficient_body")}
             </p>
           </CardContent>
         </Card>
@@ -54,7 +55,7 @@ export function PatternsInsights({ patterns }: PatternsInsightsProps) {
           id="patterns-hour-heading"
           className="font-mono text-[10px] tracking-[0.2em] text-fg-subtle uppercase"
         >
-          Ventas por hora del día
+          {t("patterns.hour_heading")}
         </h2>
         <PatternsHourChart patterns={patterns} />
       </motion.section>
@@ -68,7 +69,7 @@ export function PatternsInsights({ patterns }: PatternsInsightsProps) {
           id="patterns-weekday-heading"
           className="font-mono text-[10px] tracking-[0.2em] text-fg-subtle uppercase"
         >
-          Demanda por día de la semana
+          {t("patterns.weekday_heading")}
         </h2>
         <PatternsWeekdayRadar patterns={patterns} />
       </motion.section>
@@ -82,7 +83,7 @@ export function PatternsInsights({ patterns }: PatternsInsightsProps) {
           id="patterns-month-heading"
           className="font-mono text-[10px] tracking-[0.2em] text-fg-subtle uppercase"
         >
-          Ocupación promedio por mes
+          {t("patterns.month_heading")}
         </h2>
         <PatternsMonthGrid patterns={patterns} />
       </motion.section>

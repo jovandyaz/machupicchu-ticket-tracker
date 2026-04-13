@@ -4,6 +4,8 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { CARD_HOVER } from "@/lib/styles";
 import { cn } from "@/lib/utils";
+import { useTranslation } from "@/i18n/client";
+import { useMemo } from "react";
 
 function barClassFor(pct: number, available: number): string {
   if (available === 0) {
@@ -15,6 +17,8 @@ function barClassFor(pct: number, available: number): string {
 
 export function RouteAvailabilityGrid() {
   const query = useTodayQuery();
+  const { t, i18n } = useTranslation(["today", "common"]);
+  const numberFmt = useMemo(() => new Intl.NumberFormat(i18n.language), [i18n.language]);
 
   if (query.isPending) {
     return (
@@ -37,7 +41,7 @@ export function RouteAvailabilityGrid() {
       <Card className={CARD_HOVER}>
         <CardContent>
           <p className="font-mono text-xs text-fg-muted">
-            error cargando rutas: {query.error.message}
+            {t("common.error", { ns: "common" })}: {query.error.message}
           </p>
         </CardContent>
       </Card>
@@ -59,7 +63,7 @@ export function RouteAvailabilityGrid() {
         id="routes-heading"
         className="font-mono text-[10px] tracking-[0.2em] text-fg-subtle uppercase"
       >
-        Rutas · disponibilidad
+        {t("today.routes_availability_title")}
       </h2>
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
         {routes.map((r) => {
@@ -77,10 +81,10 @@ export function RouteAvailabilityGrid() {
                     </p>
                   </div>
                   <span className="font-mono text-sm text-fg tabular-nums">
-                    {r.sold.toLocaleString()}
+                    {numberFmt.format(r.sold)}
                     <span className="text-fg-muted">
                       {" / "}
-                      {r.capacity.toLocaleString()}
+                      {numberFmt.format(r.capacity)}
                     </span>
                   </span>
                 </div>
@@ -89,8 +93,14 @@ export function RouteAvailabilityGrid() {
                   className={cn("h-1", barClassFor(pct, r.available))}
                 />
                 <div className="flex items-center justify-between font-mono text-[11px] text-fg-muted">
-                  <span>{r.available.toLocaleString()} disponibles</span>
-                  <span className="tabular-nums">{pct.toFixed(0)}%</span>
+                  <span>
+                    {t("today.routes_available", {
+                      value: numberFmt.format(r.available),
+                    })}
+                  </span>
+                  <span className="tabular-nums">
+                    {t("today.routes_pct", { value: Math.round(pct) })}
+                  </span>
                 </div>
               </CardContent>
             </Card>

@@ -5,15 +5,17 @@ import { useFadeIn } from "@/lib/utils/motion";
 import { RoutesKpiGrid } from "./routes/RoutesKpiGrid";
 import { RoutesRankingTable } from "./routes/RoutesRankingTable";
 import { RoutesTrendChart } from "./routes/RoutesTrendChart";
+import { useTranslation } from "@/i18n/client";
 
 interface RoutesComparisonProps {
   routes: RouteStats[];
 }
 
 export function RoutesComparison({ routes }: RoutesComparisonProps) {
+  const { t, i18n } = useTranslation(["routes"]);
   const sortedRoutes = useMemo(
-    () => [...routes].sort((a, b) => a.route.localeCompare(b.route, "es")),
-    [routes],
+    () => [...routes].sort((a, b) => a.route.localeCompare(b.route, i18n.language)),
+    [routes, i18n.language],
   );
 
   const fade = useFadeIn();
@@ -29,7 +31,7 @@ export function RoutesComparison({ routes }: RoutesComparisonProps) {
           id="routes-kpi-heading"
           className="font-mono text-[10px] tracking-[0.2em] text-fg-subtle uppercase"
         >
-          Estadísticas por ruta
+          {t("routes.stats_heading")}
         </h2>
         <RoutesKpiGrid routes={sortedRoutes} />
       </motion.section>
@@ -50,7 +52,7 @@ export function RoutesComparison({ routes }: RoutesComparisonProps) {
           id="routes-rank-heading"
           className="font-mono text-[10px] tracking-[0.2em] text-fg-subtle uppercase"
         >
-          Ranking · click en cabecera para ordenar
+          {t("routes.ranking_heading")}
         </h2>
         <RoutesRankingTable routes={routes} />
       </motion.section>

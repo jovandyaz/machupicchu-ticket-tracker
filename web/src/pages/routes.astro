@@ -2,6 +2,8 @@
 import Base from "@layouts/Base.astro";
 import { RoutesComparison } from "@components/islands/RoutesComparison";
 import type { RouteStats } from "@/lib/types/aggregates";
+import { getT, stripLocalePrefix } from "@/i18n/astro";
+import { defaultLocale, type Locale } from "@/i18n/config";
 
 const routeFiles = import.meta.glob<RouteStats>(
   "../../public/data/routes/*.json",
@@ -9,25 +11,29 @@ const routeFiles = import.meta.glob<RouteStats>(
 );
 const routes: RouteStats[] = Object.values(routeFiles);
 const buildTime = new Date().toISOString().slice(11, 16);
-const current = Astro.url.pathname;
+const locale = (Astro.currentLocale ?? defaultLocale) as Locale;
+const current = stripLocalePrefix(Astro.url.pathname);
+const t = getT(locale);
 ---
 
 <Base
-  title="Rutas — Machu Picchu Ticket Log"
+  title={t("routes.page_title")}
   current={current}
   lastUpdated={buildTime}
+  locale={locale}
 >
-  <main class="space-y-8 p-8">
+  <main class="space-y-6 px-4 sm:px-6 lg:px-8 py-8">
     <header>
       <p class="font-mono text-[10px] tracking-[0.2em] text-fg-subtle uppercase">
-        Field log entry · routes
+        {t("routes.header_kicker")}
       </p>
-      <h1 class="mt-2 font-display text-4xl text-fg">Rutas</h1>
-      <p class="mt-1 font-sans text-fg-muted">
-        Comparativo entre los seis circuitos. Ocupación, velocidad y
-        frecuencia de agotamiento.
+      <h1 class="mt-2 font-display text-3xl leading-tight text-fg sm:text-4xl">
+        {t("routes.header_title")}
+      </h1>
+      <p class="mt-1 font-sans text-sm text-fg-muted sm:text-base">
+        {t("routes.header_subtitle")}
       </p>
     </header>
-    <RoutesComparison routes={routes} client:load />
+    <RoutesComparison client:load routes={routes} />
   </main>
 </Base>

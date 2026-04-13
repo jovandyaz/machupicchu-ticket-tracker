@@ -3,6 +3,7 @@ import type { DailySummary } from "@/lib/types/aggregates";
 import { useFadeIn } from "@/lib/utils/motion";
 import { HistoryCalendar } from "./history/HistoryCalendar";
 import { HistoryTable } from "./history/HistoryTable";
+import "@/i18n/client";
 
 interface HistoryHeatmapProps {
   summaries: DailySummary[];

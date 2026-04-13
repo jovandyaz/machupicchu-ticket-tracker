@@ -1,0 +1,16 @@
+{
+  "field_log": "Field log",
+  "brand_title": "Machu Picchu\nTicket Tracker",
+  "nav_today": "Hoy",
+  "nav_history": "Histórico",
+  "nav_routes": "Rutas",
+  "nav_patterns": "Patrones",
+  "legend_label": "Leyenda",
+  "legend_available": "disponible",
+  "legend_critical": "crítico",
+  "legend_sold_out": "agotado",
+  "aria_expand": "Expandir sidebar",
+  "aria_collapse": "Colapsar sidebar",
+  "aria_primary_nav": "Navegación principal",
+  "aria_repo": "Ver repositorio en GitHub"
+}

@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { animate, useMotionValue, useReducedMotion } from "motion/react";
 import { isPollingActive, useTodayQuery } from "@/lib/data/use-today";
 import type { Reading } from "@/lib/types/record";
@@ -8,6 +8,7 @@ import { Progress } from "@/components/ui/progress";
 import { CARD_HOVER } from "@/lib/styles";
 import { timeToSeconds } from "@/lib/utils/time";
 import { cn } from "@/lib/utils";
+import { useTranslation } from "@/i18n/client";
 
 /**
  * Animates an integer motion value from the previous value to `target` over a
@@ -61,26 +62,26 @@ function computeVelocity(readings: Reading[]): number | null {
 }
 
 function statusPresentation(status: Status): {
-  label: string;
+  labelKey: string;
   className: string;
   barClass: string;
 } {
   switch (status) {
     case "sold-out":
       return {
-        label: "agotado",
+        labelKey: "today.status_sold_out",
         className: "bg-danger/15 text-danger",
         barClass: "[&>[data-slot=progress-indicator]]:bg-danger",
       };
     case "critical":
       return {
-        label: "crítico",
+        labelKey: "today.status_critical",
         className: "bg-warning/15 text-warning",
         barClass: "[&>[data-slot=progress-indicator]]:bg-warning",
       };
     case "available":
       return {
-        label: "disponible",
+        labelKey: "today.status_available",
         className: "bg-success/15 text-success",
         barClass: "[&>[data-slot=progress-indicator]]:bg-success",
       };
@@ -88,6 +89,7 @@ function statusPresentation(status: Status): {
 }
 
 function LoadingCard() {
+  const { t } = useTranslation(["today"]);
   return (
     <Card className={cn("animate-pulse", CARD_HOVER)}>
       <CardContent className="space-y-4">
@@ -98,7 +100,7 @@ function LoadingCard() {
         </div>
         <div className="h-1 w-full rounded-full bg-surface-elevated" />
         <div className="flex items-center justify-between font-mono text-xs text-fg-subtle">
-          <span>actualizado --:--:-- PET</span>
+          <span>{t("today.loading_updated")}</span>
           <span className="inline-flex h-2 w-2 rounded-full bg-surface-elevated" />
         </div>
       </CardContent>
@@ -107,11 +109,12 @@ function LoadingCard() {
 }
 
 function ErrorCard({ message }: { message: string }) {
+  const { t } = useTranslation(["today"]);
   return (
     <Card className={CARD_HOVER}>
       <CardContent>
         <p className="font-mono text-xs text-fg-muted">
-          error al cargar lecturas
+          {t("today.error_loading")}
         </p>
         <p className="mt-1 font-sans text-sm text-fg-muted">{message}</p>
       </CardContent>
@@ -120,14 +123,15 @@ function ErrorCard({ message }: { message: string }) {
 }
 
 function EmptyCard() {
+  const { t } = useTranslation(["today"]);
   return (
     <Card className={CARD_HOVER}>
       <CardContent>
         <p className="font-display text-xl text-fg">
-          Aún no hay lecturas de hoy
+          {t("today.empty_title")}
         </p>
         <p className="mt-1 font-sans text-sm text-fg-muted">
-          La oficina abre a las 15:00 PET. Vuelve en unos minutos.
+          {t("today.empty_body")}
         </p>
       </CardContent>
     </Card>
@@ -139,6 +143,19 @@ export function TodayLiveStats() {
   const reduce = useReducedMotion() ?? false;
   const latest = query.data?.[query.data.length - 1];
   const animatedSold = useAnimatedInteger(latest?.total_sold ?? 0, reduce);
+  const { t, i18n } = useTranslation(["today", "common"]);
+  const numberFmt = useMemo(() => new Intl.NumberFormat(i18n.language), [i18n.language]);
+  const targetDateLabel = useMemo(() => {
+    if (!latest?.target_date) return null;
+    const [y, m, d] = latest.target_date.split("-").map(Number);
+    if (!y || !m || !d) return null;
+    return new Intl.DateTimeFormat(i18n.language, {
+      weekday: "short",
+      day: "numeric",
+      month: "short",
+      timeZone: "UTC",
+    }).format(new Date(Date.UTC(y, m - 1, d)));
+  }, [latest?.target_date, i18n.language]);
 
   if (query.isPending) return <LoadingCard />;
   if (query.isError) return <ErrorCard message={query.error.message} />;
@@ -157,18 +174,23 @@ export function TodayLiveStats() {
   return (
     <Card className={CARD_HOVER}>
       <CardContent className="space-y-4">
+        {targetDateLabel && (
+          <p className="font-mono text-[10px] tracking-[0.2em] text-accent uppercase">
+            {t("today.for_target", { date: targetDateLabel })}
+          </p>
+        )}
         <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
           <span
             className="font-display text-5xl leading-none text-fg tabular-nums"
-            aria-label={`${latest.total_sold} vendidos`}
+            aria-label={`${latest.total_sold} ${t("today.sold")}`}
           >
-            {animatedSold.toLocaleString()}
+            {numberFmt.format(animatedSold)}
           </span>
           <span className="font-display text-2xl leading-none text-fg-muted">
-            / {latest.total_capacity.toLocaleString()} vendidos
+            {t("today.sold_of", { value: numberFmt.format(latest.total_capacity) })}
           </span>
           <Badge className={cn("ml-auto uppercase", presentation.className)}>
-            {presentation.label}
+            {t(presentation.labelKey)}
           </Badge>
         </div>
 
@@ -178,17 +200,17 @@ export function TodayLiveStats() {
         />
 
         <div className="flex items-center justify-between font-mono text-xs text-fg-muted">
-          <span>actualizado {latest.time} PET</span>
+          <span>{t("today.updated_at_time", { time: latest.time })}</span>
           {polling && (
             <span
               className="inline-flex items-center gap-1.5"
-              aria-label="polling active"
+              aria-label={t("today.polling_active")}
             >
               <span className="relative inline-flex h-2 w-2">
                 <span className="live-pulse absolute inset-0 rounded-full bg-accent-electric" />
                 <span className="relative inline-flex h-2 w-2 rounded-full bg-accent-electric" />
               </span>
-              en vivo
+              {t("today.live")}
             </span>
           )}
         </div>
@@ -196,21 +218,21 @@ export function TodayLiveStats() {
         <div className="grid grid-cols-1 gap-2 border-t border-border pt-3 sm:grid-cols-2">
           <div>
             <p className="font-mono text-[10px] tracking-[0.2em] text-fg-subtle uppercase">
-              Vendidos hoy (oficina)
+              {t("today.sold_today")}
             </p>
             <p className="mt-1 font-mono text-sm text-fg">
               {latest.tickets_sold_today != null
-                ? latest.tickets_sold_today.toLocaleString()
+                ? numberFmt.format(latest.tickets_sold_today)
                 : "—"}
             </p>
           </div>
           <div>
             <p className="font-mono text-[10px] tracking-[0.2em] text-fg-subtle uppercase">
-              Ritmo
+              {t("today.velocity")}
             </p>
             <p className="mt-1 font-mono text-sm text-fg">
               {velocity != null && velocity > 0
-                ? `${Math.round(velocity).toLocaleString()} boletos/hora`
+                ? t("today.velocity_value", { value: numberFmt.format(Math.round(velocity)) })
                 : "—"}
             </p>
           </div>

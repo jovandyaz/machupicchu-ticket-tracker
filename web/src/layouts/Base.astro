@@ -1,29 +1,47 @@
 ---
 import "@/styles/globals.css";
 import { Sidebar } from "@components/islands/Sidebar";
+import { getT, buildHreflang, stripLocalePrefix } from "@/i18n/astro";
+import { defaultLocale, type Locale } from "@/i18n/config";
+import { LanguageToggle } from "@components/islands/LanguageToggle";
 
 interface Props {
   title?: string;
   description?: string;
   current: string;
   lastUpdated?: string;
+  locale?: string;
 }
 
 const {
-  title = "Machu Picchu Ticket Log",
-  description = "Real-time tracking of Machu Picchu ticket availability",
+  locale = (Astro.currentLocale ?? defaultLocale),
+  title = undefined,
+  description = undefined,
   current,
   lastUpdated,
 } = Astro.props;
+
+const activeLocale: Locale = locale as Locale;
+const t = getT(activeLocale);
+const basePath = stripLocalePrefix(Astro.url.pathname);
+const metaTitle =
+  title ??
+  `${t("layout.field_log")} — Machu Picchu Ticket Log`;
+const metaDescription =
+  description ?? "Real-time tracking of Machu Picchu ticket availability";
+const hreflangs = buildHreflang(Astro.url);
 ---
 
 <!doctype html>
-<html lang="en" class="dark">
+<html lang={locale} class="dark">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="description" content={description} />
-    <title>{title}</title>
+    <meta name="description" content={metaDescription} />
+    <title>{metaTitle}</title>
+    {hreflangs.map(({ lang, href }) => (
+      <link rel="alternate" hreflang={lang} href={href} />
+    ))}
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
@@ -32,11 +50,38 @@ const {
     />
   </head>
   <body>
-    <div class="relative min-h-dvh">
-      <Sidebar client:load current={current} lastUpdated={lastUpdated} />
-      <div class="pl-16 md:pl-64 transition-[padding] duration-200">
+    <div class="relative min-h-dvh bg-background">
+      <div class="sticky top-0 z-50 flex items-center justify-between border-b border-border bg-surface px-4 py-3 md:hidden">
+        <button
+          type="button"
+          class="inline-flex items-center gap-2 rounded-md border border-border bg-surface-elevated px-3 py-2 text-xs font-mono uppercase tracking-wide text-fg"
+          aria-label={t("common.open_menu")}
+          id="mobile-menu-toggle"
+        >
+          ☰
+        </button>
+        <LanguageToggle
+          client:load
+          locale={activeLocale}
+          basePath={basePath || "/"}
+        />
+      </div>
+      <Sidebar
+        client:load
+        current={current}
+        lastUpdated={lastUpdated}
+        locale={activeLocale}
+        basePath={basePath || "/"}
+      />
+      <div class="pl-0 md:pl-64 transition-[padding] duration-200">
         <slot />
       </div>
     </div>
+    <script>
+      const toggle = document.getElementById("mobile-menu-toggle");
+      toggle?.addEventListener("click", () => {
+        window.dispatchEvent(new CustomEvent("sidebar-toggle"));
+      });
+    </script>
   </body>
 </html>
