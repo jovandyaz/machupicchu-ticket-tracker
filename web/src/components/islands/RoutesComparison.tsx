@@ -5,13 +5,16 @@ import { useFadeIn } from "@/lib/utils/motion";
 import { RoutesKpiGrid } from "./routes/RoutesKpiGrid";
 import { RoutesRankingTable } from "./routes/RoutesRankingTable";
 import { RoutesTrendChart } from "./routes/RoutesTrendChart";
-import { useTranslation } from "@/i18n/client";
+import { ensureLocale, useTranslation } from "@/i18n/client";
+import type { Locale } from "@/i18n/config";
 
 interface RoutesComparisonProps {
   routes: RouteStats[];
+  locale: Locale;
 }
 
-export function RoutesComparison({ routes }: RoutesComparisonProps) {
+export function RoutesComparison({ routes, locale }: RoutesComparisonProps) {
+  ensureLocale(locale);
   const { t, i18n } = useTranslation(["routes"]);
   const sortedRoutes = useMemo(
     () => [...routes].sort((a, b) => a.route.localeCompare(b.route, i18n.language)),

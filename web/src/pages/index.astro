@@ -34,6 +34,6 @@ const t = getT(locale);
         {t("today.header_subtitle")}
       </p>
     </header>
-    <TodayView client:load routeStats={routeStats} />
+    <TodayView client:load routeStats={routeStats} locale={locale} />
   </main>
 </Base>

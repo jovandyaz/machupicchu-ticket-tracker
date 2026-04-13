@@ -8,13 +8,16 @@ import { PatternsHourChart } from "./patterns/PatternsHourChart";
 import { PatternsInsightCards } from "./patterns/PatternsInsightCards";
 import { PatternsMonthGrid } from "./patterns/PatternsMonthGrid";
 import { PatternsWeekdayRadar } from "./patterns/PatternsWeekdayRadar";
-import { useTranslation } from "@/i18n/client";
+import { ensureLocale, useTranslation } from "@/i18n/client";
+import type { Locale } from "@/i18n/config";
 
 interface PatternsInsightsProps {
   patterns: Patterns;
+  locale: Locale;
 }
 
-export function PatternsInsights({ patterns }: PatternsInsightsProps) {
+export function PatternsInsights({ patterns, locale }: PatternsInsightsProps) {
+  ensureLocale(locale);
   const { t } = useTranslation(["patterns"]);
   const insufficientData =
     allZero(patterns.by_hour) &&

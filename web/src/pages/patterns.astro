@@ -31,6 +31,6 @@ const t = getT(locale);
         {t("patterns.header_subtitle")}
       </p>
     </header>
-    <PatternsInsights client:load patterns={patterns} />
+    <PatternsInsights client:load patterns={patterns} locale={locale} />
   </main>
 </Base>

@@ -6,13 +6,16 @@ import { RouteAvailabilityGrid } from "./RouteAvailabilityGrid";
 import { useFadeIn } from "@/lib/utils/motion";
 import { QueryProvider } from "./QueryProvider";
 import type { RouteStats } from "@/lib/types/aggregates";
-import "@/i18n/client";
+import type { Locale } from "@/i18n/config";
+import { ensureLocale } from "@/i18n/client";
 
 interface TodayViewProps {
   routeStats: RouteStats[];
+  locale: Locale;
 }
 
-export function TodayView({ routeStats }: TodayViewProps) {
+export function TodayView({ routeStats, locale }: TodayViewProps) {
+  ensureLocale(locale);
   const fade = useFadeIn();
   const panels = [
     <TodayLiveStats key="live" />,

@@ -10,7 +10,7 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { href, isActive } from "@/lib/utils/url";
-import { useTranslation } from "@/i18n/client";
+import { ensureLocale, useTranslation } from "@/i18n/client";
 import type { Locale } from "@/i18n/config";
 import { LanguageToggle } from "./LanguageToggle";
 
@@ -50,6 +50,7 @@ export function Sidebar({
   toggleLocale,
   toggleUrl,
 }: SidebarProps) {
+  ensureLocale(locale);
   const { t } = useTranslation(["layout", "common"]);
   const [collapsed, setCollapsed] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);

@@ -14,10 +14,6 @@ export default defineConfig({
     locales: ["en", "es"],
     routing: {
       prefixDefaultLocale: false,
-      fallbackType: "rewrite",
-    },
-    fallback: {
-      es: "en",
     },
   },
   integrations: [react()],

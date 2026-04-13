@@ -1,12 +1,12 @@
 ---
 import Base from "@layouts/Base.astro";
-import { HistoryHeatmap } from "@components/islands/HistoryHeatmap";
-import dailyIndex from "../../public/data/daily-index.json";
-import type { DailySummary } from "@/lib/types/aggregates";
+import { PatternsInsights } from "@components/islands/PatternsInsights";
+import patternsData from "../../../public/data/patterns.json";
+import type { Patterns } from "@/lib/types/aggregates";
 import { getT, currentNavPath } from "@/i18n/astro";
 import { defaultLocale, type Locale } from "@/i18n/config";
 
-const summaries = dailyIndex as DailySummary[];
+const patterns = patternsData as Patterns;
 const buildTime = new Date().toISOString().slice(11, 16);
 const locale = (Astro.currentLocale ?? defaultLocale) as Locale;
 const current = currentNavPath(Astro.url.pathname);
@@ -14,7 +14,7 @@ const t = getT(locale);
 ---
 
 <Base
-  title={t("history.page_title")}
+  title={t("patterns.page_title")}
   current={current}
   lastUpdated={buildTime}
   locale={locale}
@@ -22,15 +22,15 @@ const t = getT(locale);
   <main class="space-y-6 px-4 sm:px-6 lg:px-8 py-8">
     <header>
       <p class="font-mono text-[10px] tracking-[0.2em] text-fg-subtle uppercase">
-        {t("history.header_kicker")}
+        {t("patterns.header_kicker")}
       </p>
       <h1 class="mt-2 font-display text-3xl leading-tight text-fg sm:text-4xl">
-        {t("history.header_title")}
+        {t("patterns.header_title")}
       </h1>
       <p class="mt-1 font-sans text-sm text-fg-muted sm:text-base">
-        {t("history.header_subtitle")}
+        {t("patterns.header_subtitle")}
       </p>
     </header>
-    <HistoryHeatmap client:load summaries={summaries} locale={locale} />
+    <PatternsInsights client:load patterns={patterns} locale={locale} />
   </main>
 </Base>

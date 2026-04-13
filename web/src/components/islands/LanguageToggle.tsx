@@ -1,5 +1,5 @@
 import { overrideCookie, type Locale } from "@/i18n/config";
-import { useTranslation } from "@/i18n/client";
+import { ensureLocale, useTranslation } from "@/i18n/client";
 import { cn } from "@/lib/utils";
 
 const ONE_YEAR_SECONDS = 60 * 60 * 24 * 365;
@@ -11,7 +11,8 @@ interface Props {
   className?: string;
 }
 
-export function LanguageToggle({ nextLocale, targetUrl, className }: Props) {
+export function LanguageToggle({ locale, nextLocale, targetUrl, className }: Props) {
+  ensureLocale(locale);
   const { t } = useTranslation(["common"]);
 
   return (

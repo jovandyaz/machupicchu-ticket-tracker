@@ -3,13 +3,16 @@ import type { DailySummary } from "@/lib/types/aggregates";
 import { useFadeIn } from "@/lib/utils/motion";
 import { HistoryCalendar } from "./history/HistoryCalendar";
 import { HistoryTable } from "./history/HistoryTable";
-import "@/i18n/client";
+import type { Locale } from "@/i18n/config";
+import { ensureLocale } from "@/i18n/client";
 
 interface HistoryHeatmapProps {
   summaries: DailySummary[];
+  locale: Locale;
 }
 
-export function HistoryHeatmap({ summaries }: HistoryHeatmapProps) {
+export function HistoryHeatmap({ summaries, locale }: HistoryHeatmapProps) {
+  ensureLocale(locale);
   const hasData = summaries.length > 0;
   const fade = useFadeIn();
 
