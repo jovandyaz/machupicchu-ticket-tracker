@@ -1,7 +1,5 @@
 import type { Reading } from "@/lib/types/record";
-import { parseJsonl } from "./parse";
-
-const REPO = "jovandyaz/machupicchu-ticket-tracker";
+import { buildReadingsUrl, fetchReadings } from "./fetch-readings";
 
 export function pad2(n: number): string {
   return String(n).padStart(2, "0");
@@ -21,22 +19,9 @@ export function formatPeruDate(date: Date): string {
 }
 
 export function buildTodayUrl(date: Date = new Date()): string {
-  const peru = getPeruDate(date);
-  const y = peru.getUTCFullYear();
-  const m = pad2(peru.getUTCMonth() + 1);
-  const d = pad2(peru.getUTCDate());
-  return `https://raw.githubusercontent.com/${REPO}/main/data/${y}/${m}/${y}-${m}-${d}.jsonl`;
+  return buildReadingsUrl(formatPeruDate(date));
 }
 
 export async function fetchToday(date: Date = new Date()): Promise<Reading[]> {
-  const url = buildTodayUrl(date);
-  const res = await fetch(url, { cache: "no-store" });
-  if (res.status === 404) {
-    return [];
-  }
-  if (!res.ok) {
-    throw new Error(`Failed to fetch today's data: ${res.status}`);
-  }
-  const raw = await res.text();
-  return parseJsonl(raw);
+  return fetchReadings(formatPeruDate(date));
 }

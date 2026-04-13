@@ -6,7 +6,7 @@
     "node": ">=22.12.0"
   },
   "scripts": {
-    "dev": "astro dev",
+    "dev": "pnpm build:data && astro dev",
     "build:data": "tsx scripts/build-data.cli.ts",
     "build": "pnpm build:data && astro build",
     "preview": "astro preview",

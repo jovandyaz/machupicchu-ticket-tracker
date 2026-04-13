@@ -2,5 +2,11 @@
   "page_title": "Histórico — Machu Picchu Ticket Log",
   "header_kicker": "Bitácora · archivo",
   "header_title": "Histórico",
-  "header_subtitle": "Calendario de demanda diaria. Cada cuadro es un día; el color indica qué tan lleno estuvo."
+  "header_subtitle": "Calendario de demanda diaria. Cada cuadro es un día; el color indica qué tan lleno estuvo.",
+  "selected_day_kicker": "Bitácora · lecturas",
+  "selected_day_summary": "{sold} / {capacity} vendidos",
+  "close_detail": "Cerrar detalle del día",
+  "loading_day": "Cargando lecturas de {date}…",
+  "no_data": "Sin lecturas registradas para {date}.",
+  "insufficient_readings": "Muy pocas lecturas para graficar."
 }

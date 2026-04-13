@@ -1,10 +1,13 @@
-import { motion } from "motion/react";
+import { useState } from "react";
+import { motion, AnimatePresence } from "motion/react";
 import type { DailySummary } from "@/lib/types/aggregates";
 import { useFadeIn } from "@/lib/utils/motion";
 import { HistoryCalendar } from "./history/HistoryCalendar";
 import { HistoryTable } from "./history/HistoryTable";
-import type { Locale } from "@/i18n/config";
+import { HistoryDayDetail } from "./history/HistoryDayDetail";
+import { QueryProvider } from "./QueryProvider";
 import { ensureLocale } from "@/i18n/client";
+import type { Locale } from "@/i18n/config";
 
 interface HistoryHeatmapProps {
   summaries: DailySummary[];
@@ -15,18 +18,35 @@ export function HistoryHeatmap({ summaries, locale }: HistoryHeatmapProps) {
   ensureLocale(locale);
   const hasData = summaries.length > 0;
   const fade = useFadeIn();
+  const [selectedDate, setSelectedDate] = useState<string | null>(null);
 
   return (
-    <div className="space-y-6">
-      <motion.div {...fade(0)}>
-        <HistoryCalendar summaries={summaries} />
-      </motion.div>
-
-      {hasData && (
-        <motion.div {...fade(0.1)}>
-          <HistoryTable summaries={summaries} />
+    <QueryProvider>
+      <div className="space-y-6">
+        <motion.div {...fade(0)}>
+          <HistoryCalendar
+            summaries={summaries}
+            selectedDate={selectedDate}
+            onSelectDay={setSelectedDate}
+          />
         </motion.div>
-      )}
-    </div>
+
+        <AnimatePresence mode="wait">
+          {selectedDate && (
+            <HistoryDayDetail
+              key={selectedDate}
+              date={selectedDate}
+              onClose={() => setSelectedDate(null)}
+            />
+          )}
+        </AnimatePresence>
+
+        {hasData && (
+          <motion.div {...fade(0.1)}>
+            <HistoryTable summaries={summaries} />
+          </motion.div>
+        )}
+      </div>
+    </QueryProvider>
   );
 }

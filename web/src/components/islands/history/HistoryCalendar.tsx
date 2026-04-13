@@ -48,11 +48,68 @@ const MONTH_LABELS_ES = [
 interface HistoryCalendarProps {
   summaries: DailySummary[];
   monthsBack?: number;
+  selectedDate?: string | null;
+  onSelectDay?: (date: string) => void;
+}
+
+interface CalendarCellProps {
+  cell: HeatmapCell | undefined;
+  isSelected: boolean;
+  onSelect?: (date: string) => void;
+}
+
+function cellTitle(cell: HeatmapCell): string {
+  const { summary, date } = cell;
+  if (!summary) return `${date} · sin datos`;
+  const sold = summary.total_sold.toLocaleString();
+  const capacity = summary.total_capacity.toLocaleString();
+  const soldOut = summary.sold_out_time
+    ? ` · agotado ${summary.sold_out_time.slice(0, 5)}`
+    : "";
+  return `${date} · ${sold}/${capacity} vendidos${soldOut}`;
+}
+
+function CalendarCell({ cell, isSelected, onSelect }: CalendarCellProps) {
+  if (!cell) {
+    return <span className="size-3 shrink-0" aria-hidden="true" />;
+  }
+
+  const bucket = bucketFor(cell.summary);
+  const title = cellTitle(cell);
+
+  if (!cell.summary) {
+    return (
+      <span
+        title={title}
+        className={cn(
+          "size-3 shrink-0 rounded-sm border border-border/30 opacity-40",
+          BUCKET_CLASS[bucket],
+        )}
+      />
+    );
+  }
+
+  return (
+    <button
+      type="button"
+      title={title}
+      aria-label={title}
+      aria-pressed={isSelected}
+      onClick={() => onSelect?.(cell.date)}
+      className={cn(
+        "size-3 shrink-0 rounded-sm border border-border/30 cursor-pointer transition-all hover:brightness-125 focus:outline-none focus-visible:ring-2 focus-visible:ring-accent",
+        BUCKET_CLASS[bucket],
+        isSelected && "ring-2 ring-accent ring-offset-1 ring-offset-background",
+      )}
+    />
+  );
 }
 
 export function HistoryCalendar({
   summaries,
   monthsBack = 6,
+  selectedDate = null,
+  onSelectDay,
 }: HistoryCalendarProps) {
   const hasData = summaries.length > 0;
 
@@ -146,31 +203,14 @@ export function HistoryCalendar({
                       <div className="flex gap-0.5">
                         {Array.from({ length: totalWeeks }).map((_, weekIdx) => {
                           const cell = row.get(weekIdx);
-                          if (!cell) {
-                            return (
-                              <span
-                                key={weekIdx}
-                                className="size-3 shrink-0"
-                                aria-hidden="true"
-                              />
-                            );
-                          }
-                          const bucket = bucketFor(cell.summary);
-                          const title = cell.summary
-                            ? `${cell.date} · ${cell.summary.total_sold.toLocaleString()}/${cell.summary.total_capacity.toLocaleString()} vendidos${
-                                cell.summary.sold_out_time
-                                  ? ` · agotado ${cell.summary.sold_out_time.slice(0, 5)}`
-                                  : ""
-                              }`
-                            : `${cell.date} · sin datos`;
                           return (
-                            <span
+                            <CalendarCell
                               key={weekIdx}
-                              title={title}
-                              className={cn(
-                                "size-3 shrink-0 rounded-sm border border-border/30",
-                                BUCKET_CLASS[bucket],
-                              )}
+                              cell={cell}
+                              isSelected={
+                                cell != null && selectedDate === cell.date
+                              }
+                              onSelect={onSelectDay}
                             />
                           );
                         })}

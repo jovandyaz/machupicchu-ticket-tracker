@@ -2,5 +2,11 @@
   "page_title": "History — Machu Picchu Ticket Log",
   "header_kicker": "Field log entry · archive",
   "header_title": "History",
-  "header_subtitle": "Daily demand calendar. Each square is a day; color shows how full it got."
+  "header_subtitle": "Daily demand calendar. Each square is a day; color shows how full it got.",
+  "selected_day_kicker": "Field log · readings",
+  "selected_day_summary": "{sold} / {capacity} sold",
+  "close_detail": "Close day detail",
+  "loading_day": "Loading readings for {date}…",
+  "no_data": "No readings recorded for {date}.",
+  "insufficient_readings": "Too few readings to chart."
 }

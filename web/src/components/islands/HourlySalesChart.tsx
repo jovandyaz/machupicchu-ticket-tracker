@@ -1,6 +1,5 @@
 import { useMemo } from "react";
 import { Bar, BarChart, CartesianGrid, XAxis, YAxis } from "recharts";
-import { useTodayQuery } from "@/lib/data/use-today";
 import type { Reading } from "@/lib/types/record";
 import {
   ChartContainer,
@@ -21,6 +20,10 @@ const ROUTE_COLORS = [
   "var(--color-accent-electric)",
 ];
 
+const OFFICE_HOURS: readonly string[] = Array.from({ length: 16 }, (_, i) =>
+  `${String(6 + i).padStart(2, "0")}:00`,
+);
+
 interface HourBucket {
   hour: string;
   [routeKey: string]: number | string;
@@ -34,7 +37,9 @@ function computeHourlyByRoute(readings: Reading[]): {
   buckets: HourBucket[];
   routes: Array<{ key: string; name: string }>;
 } {
-  if (readings.length === 0) return { buckets: [], routes: [] };
+  // Need at least two readings: the chart plots deltas between consecutive
+  // observations, so a single reading produces no data to chart.
+  if (readings.length < 2) return { buckets: [], routes: [] };
   const sorted = [...readings].sort((a, b) =>
     a.time < b.time ? -1 : a.time > b.time ? 1 : 0,
   );
@@ -61,26 +66,32 @@ function computeHourlyByRoute(readings: Reading[]): {
     hourMap.set(hourLabel, hourEntry);
   }
 
-  const buckets: HourBucket[] = Array.from(hourMap.entries())
-    .sort(([a], [b]) => (a < b ? -1 : 1))
-    .map(([hour, routeDeltas]) => {
+  // Expand to cover any observed hour outside the office window.
+  const allHours = new Set<string>(OFFICE_HOURS);
+  for (const hour of hourMap.keys()) allHours.add(hour);
+
+  const buckets: HourBucket[] = Array.from(allHours)
+    .sort((a, b) => (a < b ? -1 : 1))
+    .map((hour) => {
       const row: HourBucket = { hour };
-      for (const { key } of routeOrder) {
-        row[key] = routeDeltas[key] ?? 0;
-      }
+      const deltas = hourMap.get(hour) ?? {};
+      for (const { key } of routeOrder) row[key] = deltas[key] ?? 0;
       return row;
     });
 
   return { buckets, routes: routeOrder };
 }
 
-export function HourlySalesChart() {
-  const query = useTodayQuery();
+interface Props {
+  readings: Reading[];
+}
+
+export function HourlySalesChart({ readings }: Props) {
   const { t } = useTranslation(["today"]);
 
   const { buckets, routes } = useMemo(
-    () => computeHourlyByRoute(query.data ?? []),
-    [query.data],
+    () => computeHourlyByRoute(readings),
+    [readings],
   );
 
   const chartConfig = useMemo<ChartConfig>(() => {
@@ -93,20 +104,6 @@ export function HourlySalesChart() {
     });
     return config;
   }, [routes]);
-
-  if (query.isPending) {
-    return (
-      <Card className={CARD_HOVER}>
-        <CardContent>
-          <div className="h-64 animate-pulse rounded bg-surface-elevated" />
-        </CardContent>
-      </Card>
-    );
-  }
-
-  if (query.isError) {
-    return null;
-  }
 
   if (buckets.length === 0) {
     return (
@@ -134,7 +131,7 @@ export function HourlySalesChart() {
             {t("today.hourly_chart_subtitle")}
           </p>
         </div>
-        <ChartContainer config={chartConfig} className="h-64 w-full">
+        <ChartContainer config={chartConfig} className="h-56 w-full md:h-64">
           <BarChart
             data={buckets}
             margin={{ top: 8, right: 12, left: 0, bottom: 0 }}
