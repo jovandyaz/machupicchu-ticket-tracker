@@ -1,8 +1,9 @@
 ---
 import "@/styles/globals.css";
+import { getAbsoluteLocaleUrl, getRelativeLocaleUrl } from "astro:i18n";
 import { Sidebar } from "@components/islands/Sidebar";
-import { getT, buildHreflang, stripLocalePrefix } from "@/i18n/astro";
-import { defaultLocale, type Locale } from "@/i18n/config";
+import { getT, stripBase, stripLocalePrefix } from "@/i18n/astro";
+import { defaultLocale, locales, type Locale } from "@/i18n/config";
 import { LanguageToggle } from "@components/islands/LanguageToggle";
 
 interface Props {
@@ -23,13 +24,19 @@ const {
 
 const activeLocale: Locale = locale as Locale;
 const t = getT(activeLocale);
-const basePath = stripLocalePrefix(Astro.url.pathname);
+const logicalPath =
+  stripLocalePrefix(stripBase(Astro.url.pathname)).replace(/^\//, "");
+const nextLocale: Locale = activeLocale === defaultLocale ? "es" : defaultLocale;
+const toggleUrl = getRelativeLocaleUrl(nextLocale, logicalPath);
 const metaTitle =
   title ??
   `${t("layout.field_log")} — Machu Picchu Ticket Log`;
 const metaDescription =
   description ?? "Real-time tracking of Machu Picchu ticket availability";
-const hreflangs = buildHreflang(Astro.url);
+const hreflangs: Array<{ lang: Locale; href: string }> = locales.map((lang) => ({
+  lang,
+  href: getAbsoluteLocaleUrl(lang, logicalPath),
+}));
 ---
 
 <!doctype html>
@@ -63,7 +70,8 @@ const hreflangs = buildHreflang(Astro.url);
         <LanguageToggle
           client:load
           locale={activeLocale}
-          basePath={basePath || "/"}
+          nextLocale={nextLocale}
+          targetUrl={toggleUrl}
         />
       </div>
       <Sidebar
@@ -71,7 +79,8 @@ const hreflangs = buildHreflang(Astro.url);
         current={current}
         lastUpdated={lastUpdated}
         locale={activeLocale}
-        basePath={basePath || "/"}
+        toggleLocale={nextLocale}
+        toggleUrl={toggleUrl}
       />
       <div class="pl-0 md:pl-64 transition-[padding] duration-200">
         <slot />

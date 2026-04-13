@@ -3,13 +3,13 @@ import Base from "@layouts/Base.astro";
 import { PatternsInsights } from "@components/islands/PatternsInsights";
 import patternsData from "../../public/data/patterns.json";
 import type { Patterns } from "@/lib/types/aggregates";
-import { getT, stripLocalePrefix } from "@/i18n/astro";
+import { getT, currentNavPath } from "@/i18n/astro";
 import { defaultLocale, type Locale } from "@/i18n/config";
 
 const patterns = patternsData as Patterns;
 const buildTime = new Date().toISOString().slice(11, 16);
 const locale = (Astro.currentLocale ?? defaultLocale) as Locale;
-const current = stripLocalePrefix(Astro.url.pathname);
+const current = currentNavPath(Astro.url.pathname);
 const t = getT(locale);
 ---
 

@@ -2,9 +2,9 @@ import { defaultLocale, locales, type Locale } from "./config";
 import { namespaces, resources, type Namespace } from "./resources";
 
 export {
-  buildHreflang,
+  currentNavPath,
+  stripBase,
   stripLocalePath as stripLocalePrefix,
-  withLocale,
 } from "./url";
 
 function getNested(

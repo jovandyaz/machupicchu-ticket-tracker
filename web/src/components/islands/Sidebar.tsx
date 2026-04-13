@@ -39,10 +39,17 @@ interface SidebarProps {
   current: string;
   lastUpdated?: string;
   locale: Locale;
-  basePath: string;
+  toggleLocale: Locale;
+  toggleUrl: string;
 }
 
-export function Sidebar({ current, lastUpdated, locale, basePath }: SidebarProps) {
+export function Sidebar({
+  current,
+  lastUpdated,
+  locale,
+  toggleLocale,
+  toggleUrl,
+}: SidebarProps) {
   const { t } = useTranslation(["layout", "common"]);
   const [collapsed, setCollapsed] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -195,7 +202,11 @@ export function Sidebar({ current, lastUpdated, locale, basePath }: SidebarProps
                 {t("common.coordinates")}
               </p>
               <div className="mt-3">
-                <LanguageToggle locale={locale} basePath={basePath} />
+                <LanguageToggle
+                  locale={locale}
+                  nextLocale={toggleLocale}
+                  targetUrl={toggleUrl}
+                />
               </div>
             </>
           )}
