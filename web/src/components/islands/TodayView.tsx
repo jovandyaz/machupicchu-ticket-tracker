@@ -1,19 +1,24 @@
 import { motion } from "motion/react";
 import { TodayLiveStats } from "./TodayLiveStats";
 import { SoldOutProjection } from "./SoldOutProjection";
-import { SalesVelocityChart } from "./SalesVelocityChart";
+import { HourlySalesChart } from "./HourlySalesChart";
 import { RouteAvailabilityGrid } from "./RouteAvailabilityGrid";
 import { useFadeIn } from "@/lib/utils/motion";
 import { QueryProvider } from "./QueryProvider";
+import type { RouteStats } from "@/lib/types/aggregates";
 import "@/i18n/client";
 
-export function TodayView() {
+interface TodayViewProps {
+  routeStats: RouteStats[];
+}
+
+export function TodayView({ routeStats }: TodayViewProps) {
   const fade = useFadeIn();
   const panels = [
     <TodayLiveStats key="live" />,
     <SoldOutProjection key="projection" />,
-    <SalesVelocityChart key="velocity" />,
-    <RouteAvailabilityGrid key="grid" />,
+    <HourlySalesChart key="hourly" />,
+    <RouteAvailabilityGrid key="grid" routeStats={routeStats} />,
   ];
 
   return (

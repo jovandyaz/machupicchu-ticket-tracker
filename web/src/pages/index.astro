@@ -3,7 +3,13 @@ import Base from "@layouts/Base.astro";
 import { TodayView } from "@components/islands/TodayView";
 import { getT, stripLocalePrefix } from "@/i18n/astro";
 import { defaultLocale, type Locale } from "@/i18n/config";
+import type { RouteStats } from "@/lib/types/aggregates";
 
+const routeFiles = import.meta.glob<RouteStats>(
+  "../../public/data/routes/*.json",
+  { eager: true, import: "default" },
+);
+const routeStats: RouteStats[] = Object.values(routeFiles);
 const buildTime = new Date().toISOString().slice(11, 16);
 const locale = (Astro.currentLocale ?? defaultLocale) as Locale;
 const current = stripLocalePrefix(Astro.url.pathname);
@@ -28,6 +34,6 @@ const t = getT(locale);
         {t("today.header_subtitle")}
       </p>
     </header>
-    <TodayView client:load />
+    <TodayView client:load routeStats={routeStats} />
   </main>
 </Base>

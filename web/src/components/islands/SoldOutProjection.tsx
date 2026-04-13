@@ -30,7 +30,7 @@ export function SoldOutProjection() {
           {t("today.projection_title")}
         </p>
         <p className="font-sans text-sm text-fg-muted">
-          {t("today.projection_sold_out", { time: projection.eta })} PET
+          {t("today.projection_sold_out", { time: projection.eta })}
         </p>
         <p className="ml-auto font-mono text-[11px] text-fg-subtle">
           {t("common.confidence")}: {t(confidenceKey)}

@@ -1,5 +1,5 @@
 {
-  "field_log": "Field log",
+  "field_log": "Bitácora",
   "brand_title": "Machu Picchu\nTicket Tracker",
   "nav_today": "Hoy",
   "nav_history": "Histórico",
@@ -9,8 +9,8 @@
   "legend_available": "disponible",
   "legend_critical": "crítico",
   "legend_sold_out": "agotado",
-  "aria_expand": "Expandir sidebar",
-  "aria_collapse": "Colapsar sidebar",
+  "aria_expand": "Expandir barra lateral",
+  "aria_collapse": "Colapsar barra lateral",
   "aria_primary_nav": "Navegación principal",
   "aria_repo": "Ver repositorio en GitHub"
 }

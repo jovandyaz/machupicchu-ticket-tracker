@@ -21,6 +21,7 @@ export interface RouteStats {
   sold_out_count: number;
   avg_occupancy: number;
   avg_velocity: number;
+  avg_sold_out_time?: string;
   history: Array<{
     date: string;
     sold: number;

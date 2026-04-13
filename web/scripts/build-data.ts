@@ -4,7 +4,7 @@ import type {
   Patterns,
   RouteStats,
 } from "../src/lib/types/aggregates";
-import { timeToSeconds } from "../src/lib/utils/time";
+import { secondsToHHMM, timeToSeconds } from "../src/lib/utils/time";
 
 function sortByTime(readings: Reading[]): Reading[] {
   return [...readings].sort((a, b) => (a.time < b.time ? -1 : a.time > b.time ? 1 : 0));
@@ -162,6 +162,13 @@ function mean(values: number[]): number {
   return values.reduce((a, b) => a + b, 0) / values.length;
 }
 
+function averageTimeOfDay(times: string[]): string | undefined {
+  if (times.length === 0) return undefined;
+  const seconds = times.map(timeToSeconds);
+  const avg = seconds.reduce((a, b) => a + b, 0) / seconds.length;
+  return secondsToHHMM(avg);
+}
+
 function summarizeRouteEntries(
   route: string,
   meta: RouteMeta,
@@ -170,13 +177,18 @@ function summarizeRouteEntries(
   const occupancies = entries.map((e) =>
     e.capacity > 0 ? e.sold / e.capacity : 0,
   );
+  const soldOutTimes = entries
+    .map((e) => e.sold_out_time)
+    .filter((t): t is string => !!t);
+  const avgSoldOut = averageTimeOfDay(soldOutTimes);
   return {
     route,
     circuit: meta.circuit,
     capacity: meta.capacity,
-    sold_out_count: entries.filter((e) => e.sold_out_time).length,
+    sold_out_count: soldOutTimes.length,
     avg_occupancy: mean(occupancies),
     avg_velocity: mean(entries.map(velocityForEntry)),
+    ...(avgSoldOut ? { avg_sold_out_time: avgSoldOut } : {}),
     history: entries.map((e) => ({
       date: e.date,
       sold: e.sold,

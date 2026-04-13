@@ -2,7 +2,7 @@
   "page_title": "Patterns — Machu Picchu Ticket Log",
   "header_kicker": "Field log entry · patterns",
   "header_title": "Patterns",
-  "header_subtitle": "Insights by hour, weekday, and month from accumulated logs.",
+  "header_subtitle": "Insights by hour, weekday, and month from recorded data.",
   "insufficient_title": "Only one day of tracking so far",
   "insufficient_body": "This view will gain history soon — patterns become expressive with several weeks of data.",
   "hour_heading": "Sales by hour of day",

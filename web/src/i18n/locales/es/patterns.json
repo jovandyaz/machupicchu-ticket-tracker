@@ -1,8 +1,8 @@
 {
   "page_title": "Patrones — Machu Picchu Ticket Log",
-  "header_kicker": "Field log entry · patterns",
+  "header_kicker": "Bitácora · patrones",
   "header_title": "Patrones",
-  "header_subtitle": "Observaciones sobre hora, día y mes a partir del registro acumulado.",
+  "header_subtitle": "Observaciones sobre hora, día y mes a partir de los datos registrados.",
   "insufficient_title": "Solo llevamos 1 día de tracking",
   "insufficient_body": "Esta vista tendrá más historia pronto — los patrones son más expresivos con varias semanas acumuladas.",
   "hour_heading": "Ventas por hora del día",

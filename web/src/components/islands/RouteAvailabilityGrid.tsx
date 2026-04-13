@@ -1,11 +1,16 @@
 import { useTodayQuery } from "@/lib/data/use-today";
 import type { RouteReading } from "@/lib/types/record";
+import type { RouteStats } from "@/lib/types/aggregates";
 import { Card, CardContent } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { CARD_HOVER } from "@/lib/styles";
 import { cn } from "@/lib/utils";
 import { useTranslation } from "@/i18n/client";
 import { useMemo } from "react";
+
+interface RouteAvailabilityGridProps {
+  routeStats?: RouteStats[];
+}
 
 function barClassFor(pct: number, available: number): string {
   if (available === 0) {
@@ -15,10 +20,17 @@ function barClassFor(pct: number, available: number): string {
   return "[&>[data-slot=progress-indicator]]:bg-success";
 }
 
-export function RouteAvailabilityGrid() {
+export function RouteAvailabilityGrid({ routeStats = [] }: RouteAvailabilityGridProps) {
   const query = useTodayQuery();
   const { t, i18n } = useTranslation(["today", "common"]);
   const numberFmt = useMemo(() => new Intl.NumberFormat(i18n.language), [i18n.language]);
+  const soldOutByRoute = useMemo(() => {
+    const map = new Map<string, string>();
+    for (const r of routeStats) {
+      if (r.avg_sold_out_time) map.set(r.route, r.avg_sold_out_time);
+    }
+    return map;
+  }, [routeStats]);
 
   if (query.isPending) {
     return (
@@ -51,11 +63,10 @@ export function RouteAvailabilityGrid() {
   const data = query.data;
   if (!data || data.length === 0) return null;
   const latest = data[data.length - 1]!;
-  const routes: RouteReading[] = [...latest.routes].sort((a, b) => {
-    const pa = a.capacity > 0 ? a.sold / a.capacity : 0;
-    const pb = b.capacity > 0 ? b.sold / b.capacity : 0;
-    return pb - pa;
-  });
+
+  const routes: RouteReading[] = [...latest.routes].sort(
+    (a, b) => b.available - a.available,
+  );
 
   return (
     <section aria-labelledby="routes-heading" className="space-y-3">
@@ -68,6 +79,7 @@ export function RouteAvailabilityGrid() {
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
         {routes.map((r) => {
           const pct = r.capacity > 0 ? (r.sold / r.capacity) * 100 : 0;
+          const soldOutTime = soldOutByRoute.get(r.route);
           return (
             <Card key={`${r.route}-${r.circuit}`} className={CARD_HOVER}>
               <CardContent className="space-y-3">
@@ -102,6 +114,11 @@ export function RouteAvailabilityGrid() {
                     {t("today.routes_pct", { value: Math.round(pct) })}
                   </span>
                 </div>
+                {soldOutTime && (
+                  <p className="font-mono text-[10px] text-fg-subtle">
+                    {t("today.typical_sold_out", { time: soldOutTime })}
+                  </p>
+                )}
               </CardContent>
             </Card>
           );
