@@ -8,8 +8,20 @@ const API_BASE = "https://api-tuboleto.cultura.pe";
 const SECRET_KEY = process.env.TUBOLETO_SECRET_KEY;
 const DATA_DIR = path.join(__dirname, "..", "data");
 
+const DEFAULT_HEADERS = {
+  "User-Agent":
+    "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36",
+  Accept: "application/json, text/plain, */*",
+  "Accept-Language": "es-ES,es;q=0.9,en;q=0.8",
+  Origin: "https://www.tuboleto.cultura.pe",
+  Referer: "https://www.tuboleto.cultura.pe/",
+};
+
 async function fetchJSON(url, options = {}) {
-  const resp = await fetch(url, options);
+  const resp = await fetch(url, {
+    ...options,
+    headers: { ...DEFAULT_HEADERS, ...(options.headers || {}) },
+  });
   if (!resp.ok) throw new Error(`${url} returned ${resp.status}`);
   return resp.json();
 }
