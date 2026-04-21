@@ -4,5 +4,15 @@
   "header_title": "Rutas",
   "header_subtitle": "Promedios históricos entre los seis circuitos — todas las fechas observadas.",
   "stats_heading": "Estadísticas por ruta",
-  "ranking_heading": "Ranking · clic en cabecera para ordenar"
+  "ranking_heading": "Ranking · clic en cabecera para ordenar",
+  "col_route": "Ruta",
+  "col_occupancy": "Ocupación prom.",
+  "col_sold_out_time": "Hora agotado prom.",
+  "col_sold_out_count": "Agotados",
+  "col_velocity": "Velocidad",
+  "sold_out_days": "{count}/{total} días",
+  "never_sold_out": "—",
+  "sold_out_at": "· agotó {time}",
+  "trend_chart_heading": "Evolución · % ocupación por día",
+  "trend_chart_sparse": "solo llevamos {count} día — la tendencia aparecerá con más registros."
 }

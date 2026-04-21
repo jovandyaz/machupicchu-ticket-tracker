@@ -8,7 +8,7 @@ Automated monitoring of Machu Picchu ticket availability — the 1,000 daily tic
 
 Since April 2025, Machu Picchu tickets are **only sold in person** at the Centro Cultural de Aguas Calientes. No online purchases. The government issues 1,000 tickets per day, split across 6 routes in 3 circuits.
 
-The ticket office operates daily from **3:00 PM to 10:00 PM** (Peru time, UTC-5), selling tickets for the **next day** only. Tickets often sell out — especially during high season (June–August) and holidays.
+The ticket office operates daily from **6:00 AM to 10:00 PM** (Peru time, UTC-5), selling tickets for the **next day** only. Tickets often sell out — especially during high season (June–August) and holidays.
 
 ## Routes
 

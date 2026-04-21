@@ -1,6 +1,5 @@
 import { motion } from "motion/react";
 import { TodayLiveStats } from "./TodayLiveStats";
-import { SoldOutProjection } from "./SoldOutProjection";
 import { TodayHourlyCard } from "./TodayHourlyCard";
 import { RouteAvailabilityGrid } from "./RouteAvailabilityGrid";
 import { useFadeIn } from "@/lib/utils/motion";
@@ -19,7 +18,6 @@ export function TodayView({ routeStats, locale }: TodayViewProps) {
   const fade = useFadeIn();
   const panels = [
     <TodayLiveStats key="live" />,
-    <SoldOutProjection key="projection" />,
     <TodayHourlyCard key="hourly" />,
     <RouteAvailabilityGrid key="grid" routeStats={routeStats} />,
   ];

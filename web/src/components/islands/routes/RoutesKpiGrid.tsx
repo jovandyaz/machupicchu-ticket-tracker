@@ -1,15 +1,8 @@
 import type { RouteStats } from "@/lib/types/aggregates";
 import { Card, CardContent } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
-import { CARD_HOVER } from "@/lib/styles";
+import { CARD_HOVER, occupancyBarClass } from "@/lib/styles";
 import { cn } from "@/lib/utils";
-
-function occupancyBarClass(pct: number): string {
-  if (pct >= 100) return "[&>[data-slot=progress-indicator]]:bg-danger";
-  if (pct >= 75) return "[&>[data-slot=progress-indicator]]:bg-warning";
-  if (pct >= 50) return "[&>[data-slot=progress-indicator]]:bg-accent";
-  return "[&>[data-slot=progress-indicator]]:bg-success";
-}
 
 interface RoutesKpiGridProps {
   routes: RouteStats[];

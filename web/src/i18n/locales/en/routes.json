@@ -4,5 +4,15 @@
   "header_title": "Routes",
   "header_subtitle": "Historical averages across six circuits — all observed dates.",
   "stats_heading": "Route statistics",
-  "ranking_heading": "Ranking · click header to sort"
+  "ranking_heading": "Ranking · click header to sort",
+  "col_route": "Route",
+  "col_occupancy": "Avg. occupancy",
+  "col_sold_out_time": "Avg. sell-out time",
+  "col_sold_out_count": "Sold out",
+  "col_velocity": "Velocity",
+  "sold_out_days": "{count}/{total} days",
+  "never_sold_out": "—",
+  "sold_out_at": "· sold out {time}",
+  "trend_chart_heading": "Evolution · % occupancy per day",
+  "trend_chart_sparse": "only {count} day so far — the trend will emerge with more readings."
 }

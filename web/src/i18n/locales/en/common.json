@@ -20,9 +20,5 @@
   "close_menu": "Close menu",
   "language": "Language",
   "english": "English",
-  "spanish": "Español",
-  "confidence": "confidence",
-  "confidence_high": "high",
-  "confidence_medium": "medium",
-  "confidence_low": "low"
+  "spanish": "Español"
 }

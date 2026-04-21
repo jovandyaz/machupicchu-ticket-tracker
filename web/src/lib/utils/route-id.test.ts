@@ -1,5 +1,10 @@
 import { describe, expect, it } from "vitest";
-import { routeFileSlug, routeVarKey, shortRouteName } from "./route-id";
+import {
+  routeFileSlug,
+  routeVarKey,
+  shortCircuitName,
+  shortRouteName,
+} from "./route-id";
 
 describe("routeVarKey", () => {
   it("lowercases and replaces non-alphanumerics with underscores", () => {
@@ -33,5 +38,17 @@ describe("shortRouteName", () => {
 
   it("falls back to the original name when the pattern does not match", () => {
     expect(shortRouteName("Alternative Name")).toBe("Alternative Name");
+  });
+});
+
+describe("shortCircuitName", () => {
+  it("strips the 'Circuito N -' prefix and duplicated Circuito keyword", () => {
+    expect(shortCircuitName("Circuito 1 - Panorámico")).toBe("Panorámico");
+    expect(shortCircuitName("Circuito 2 - Circuito clásico")).toBe("Clásico");
+    expect(shortCircuitName("Circuito 3 - Machupicchu realeza")).toBe("Realeza");
+  });
+
+  it("falls back to the original name when no dash is present", () => {
+    expect(shortCircuitName("Unexpected")).toBe("Unexpected");
   });
 });
