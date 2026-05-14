@@ -41,7 +41,8 @@ function signRequest(timestamp) {
   return { hash, timestamp: timestamp.toString() };
 }
 
-async function getAvailabilityByRoute(fecha, serverMs) {
+async function getAvailabilityByRoute(fecha) {
+  const serverMs = await fetchServerTime();
   const { hash, timestamp } = signRequest(serverMs);
   return fetchJSON(`${API_BASE}/comunes/disponibilidad-actual`, {
     method: "POST",
@@ -114,7 +115,7 @@ async function main() {
     targetDates.map(async (targetDate) => {
       const [ticketsForTarget, routeAvailability] = await Promise.all([
         getTicketsSoldByDate(targetDate),
-        getAvailabilityByRoute(targetDate, serverMs),
+        getAvailabilityByRoute(targetDate),
       ]);
       return buildRecord({
         serverTime,
