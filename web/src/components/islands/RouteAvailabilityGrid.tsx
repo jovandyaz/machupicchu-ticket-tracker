@@ -10,6 +10,7 @@ import { useMemo } from "react";
 
 interface RouteAvailabilityGridProps {
   routeStats?: RouteStats[];
+  targetDate: string;
 }
 
 function barClassFor(pct: number, available: number): string {
@@ -20,7 +21,7 @@ function barClassFor(pct: number, available: number): string {
   return "[&>[data-slot=progress-indicator]]:bg-success";
 }
 
-export function RouteAvailabilityGrid({ routeStats = [] }: RouteAvailabilityGridProps) {
+export function RouteAvailabilityGrid({ routeStats = [], targetDate }: RouteAvailabilityGridProps) {
   const query = useTodayQuery();
   const { t, i18n } = useTranslation(["today", "common"]);
   const numberFmt = useMemo(() => new Intl.NumberFormat(i18n.language), [i18n.language]);
@@ -60,7 +61,7 @@ export function RouteAvailabilityGrid({ routeStats = [] }: RouteAvailabilityGrid
     );
   }
 
-  const data = query.data;
+  const data = query.data?.filter((r) => r.target_date === targetDate);
   if (!data || data.length === 0) return null;
   const latest = data[data.length - 1]!;
 

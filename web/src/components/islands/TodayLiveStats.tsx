@@ -1,7 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { animate, useMotionValue, useReducedMotion } from "motion/react";
 import { isPollingActive, useTodayQuery } from "@/lib/data/use-today";
-import { formatPeruDate } from "@/lib/data/fetch-today";
 import type { Reading } from "@/lib/types/record";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
@@ -139,32 +138,21 @@ function EmptyCard() {
   );
 }
 
-export function TodayLiveStats() {
+interface TodayLiveStatsProps {
+  targetDate: string;
+}
+
+export function TodayLiveStats({ targetDate }: TodayLiveStatsProps) {
   const query = useTodayQuery();
   const reduce = useReducedMotion() ?? false;
-  const tomorrowTarget = useMemo(
-    () => formatPeruDate(new Date(Date.now() + 24 * 60 * 60 * 1000)),
-    [],
-  );
   const readings = useMemo(
-    () => query.data?.filter((r) => r.target_date === tomorrowTarget),
-    [query.data, tomorrowTarget],
+    () => query.data?.filter((r) => r.target_date === targetDate),
+    [query.data, targetDate],
   );
   const latest = readings?.[readings.length - 1];
   const animatedSold = useAnimatedInteger(latest?.total_sold ?? 0, reduce);
   const { t, i18n } = useTranslation(["today", "common"]);
   const numberFmt = useMemo(() => new Intl.NumberFormat(i18n.language), [i18n.language]);
-  const targetDateLabel = useMemo(() => {
-    if (!latest?.target_date) return null;
-    const [y, m, d] = latest.target_date.split("-").map(Number);
-    if (!y || !m || !d) return null;
-    return new Intl.DateTimeFormat(i18n.language, {
-      weekday: "short",
-      day: "numeric",
-      month: "short",
-      timeZone: "UTC",
-    }).format(new Date(Date.UTC(y, m - 1, d)));
-  }, [latest?.target_date, i18n.language]);
 
   if (query.isPending) return <LoadingCard />;
   if (query.isError) return <ErrorCard message={query.error.message} />;
@@ -183,11 +171,6 @@ export function TodayLiveStats() {
   return (
     <Card className={CARD_HOVER}>
       <CardContent className="space-y-4">
-        {targetDateLabel && (
-          <p className="font-mono text-[10px] tracking-[0.2em] text-accent uppercase">
-            {t("today.for_target", { date: targetDateLabel })}
-          </p>
-        )}
         <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
           <span
             className="font-display text-5xl leading-none text-fg tabular-nums"
@@ -227,7 +210,7 @@ export function TodayLiveStats() {
         <div className="grid grid-cols-1 gap-2 border-t border-border pt-3 sm:grid-cols-2">
           <div>
             <p className="font-mono text-[10px] tracking-[0.2em] text-fg-subtle uppercase">
-              {t("today.sold_today")}
+              {t("today.tickets_collected")}
             </p>
             <p className="mt-1 font-mono text-sm text-fg">
               {latest.tickets_sold_for_target_date != null
