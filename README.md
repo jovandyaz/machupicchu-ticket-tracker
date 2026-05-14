@@ -27,7 +27,7 @@ The ticket office operates daily from **6:00 AM to 10:00 PM** (Peru time, UTC-5)
 
 Two pieces, one repo:
 
-1. **Tracker** — a GitHub Action runs every 10 minutes (5 AM — 11 PM Peru time) and queries the [tuboleto.cultura.pe](https://tuboleto.cultura.pe/cusco/1000boletos) API to record tickets sold today and per-route availability for tomorrow. Data is appended to `data/*.jsonl` and committed back.
+1. **Tracker** — a GitHub Action runs every 5 minutes (5 AM — midnight Peru time) and queries the [tuboleto.cultura.pe](https://tuboleto.cultura.pe/cusco/1000boletos) API. Each tick records per-route availability and delivered turns for the next three visit days (D+1, D+2, D+3) — one JSONL record per target date. Data is appended to `data/*.jsonl` and committed back.
 2. **Dashboard** — an Astro + React site at [`web/`](web/) that preprocesses the JSONL into aggregated JSON at build time, then renders four views:
    - **Hoy** — live KPIs, per-route grid, sales velocity chart, sold-out projection. Polls raw JSONL from GitHub every 60s via TanStack Query.
    - **Histórico** — calendar heatmap and day-by-day table.
@@ -45,7 +45,7 @@ data/
 │   └── ...
 ├── 2026/
 │   └── 04/
-│       ├── 2026-04-12.jsonl   # Readings every 10 min with per-route breakdown
+│       ├── 2026-04-12.jsonl   # Readings every 5 min, 3 records per tick (one per D+1/D+2/D+3)
 │       └── ...
 ```
 
@@ -57,7 +57,7 @@ Each line in a `.jsonl` file:
   "date": "2026-04-12",
   "time": "08:30:00",
   "target_date": "2026-04-13",
-  "tickets_sold_today": 450,
+  "tickets_sold_for_target_date": 450,
   "total_capacity": 1000,
   "total_sold": 320,
   "total_available": 680,
@@ -76,7 +76,7 @@ Each line in a `.jsonl` file:
 ## Setup
 
 1. Set the `TUBOLETO_SECRET_KEY` secret in the repo
-2. The GitHub Action runs automatically every 10 minutes
+2. The GitHub Action runs automatically every 5 minutes between 5 AM and midnight Peru time
 
 ## Scripts
 
