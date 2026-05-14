@@ -9,7 +9,7 @@ function makeReading(overrides: Partial<Reading> = {}): Reading {
     date: "2026-04-12",
     time: "17:00:00",
     target_date: "2026-04-13",
-    tickets_sold_today: null,
+    tickets_sold_for_target_date: null,
     total_capacity: 1000,
     total_sold: 500,
     total_available: 500,

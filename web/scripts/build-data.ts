@@ -6,14 +6,16 @@ import type {
 } from "../src/lib/types/aggregates";
 import { secondsToHHMM, timeToSeconds } from "../src/lib/utils/time";
 
-function sortByTime(readings: Reading[]): Reading[] {
-  return [...readings].sort((a, b) => (a.time < b.time ? -1 : a.time > b.time ? 1 : 0));
+function sortByTimestamp(readings: Reading[]): Reading[] {
+  return [...readings].sort((a, b) =>
+    a.timestamp < b.timestamp ? -1 : a.timestamp > b.timestamp ? 1 : 0,
+  );
 }
 
 export function computeDailySummary(readings: Reading[]): DailySummary | null {
   if (readings.length === 0) return null;
 
-  const sorted = sortByTime(readings);
+  const sorted = sortByTimestamp(readings);
   const last = sorted[sorted.length - 1]!;
   const first = sorted[0]!;
 
@@ -209,7 +211,7 @@ export function computeRouteStats(readings: Reading[]): RouteStats[] {
   );
 
   for (const date of dateOrder) {
-    const dayReadings = sortByTime(byDate.get(date) ?? []);
+    const dayReadings = sortByTimestamp(byDate.get(date) ?? []);
     if (dayReadings.length === 0) continue;
     for (const name of routeOrder) {
       const entry = buildRouteDayEntry(
@@ -252,7 +254,7 @@ export function computePatterns(readings: Reading[]): Patterns {
   const monthCounts = new Map<string, number>();
 
   for (const [date, list] of byDate) {
-    const sorted = sortByTime(list);
+    const sorted = sortByTimestamp(list);
     if (sorted.length === 0) continue;
     const last = sorted[sorted.length - 1]!;
 

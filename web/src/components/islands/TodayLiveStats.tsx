@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { animate, useMotionValue, useReducedMotion } from "motion/react";
 import { isPollingActive, useTodayQuery } from "@/lib/data/use-today";
+import { formatPeruDate } from "@/lib/data/fetch-today";
 import type { Reading } from "@/lib/types/record";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
@@ -141,7 +142,15 @@ function EmptyCard() {
 export function TodayLiveStats() {
   const query = useTodayQuery();
   const reduce = useReducedMotion() ?? false;
-  const latest = query.data?.[query.data.length - 1];
+  const tomorrowTarget = useMemo(
+    () => formatPeruDate(new Date(Date.now() + 24 * 60 * 60 * 1000)),
+    [],
+  );
+  const readings = useMemo(
+    () => query.data?.filter((r) => r.target_date === tomorrowTarget),
+    [query.data, tomorrowTarget],
+  );
+  const latest = readings?.[readings.length - 1];
   const animatedSold = useAnimatedInteger(latest?.total_sold ?? 0, reduce);
   const { t, i18n } = useTranslation(["today", "common"]);
   const numberFmt = useMemo(() => new Intl.NumberFormat(i18n.language), [i18n.language]);
@@ -159,7 +168,7 @@ export function TodayLiveStats() {
 
   if (query.isPending) return <LoadingCard />;
   if (query.isError) return <ErrorCard message={query.error.message} />;
-  const data = query.data;
+  const data = readings;
   if (!data || data.length === 0 || !latest) return <EmptyCard />;
 
   const pct =
@@ -221,8 +230,8 @@ export function TodayLiveStats() {
               {t("today.sold_today")}
             </p>
             <p className="mt-1 font-mono text-sm text-fg">
-              {latest.tickets_sold_today != null
-                ? numberFmt.format(latest.tickets_sold_today)
+              {latest.tickets_sold_for_target_date != null
+                ? numberFmt.format(latest.tickets_sold_for_target_date)
                 : "—"}
             </p>
           </div>

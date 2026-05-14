@@ -6,7 +6,7 @@ const validLine = JSON.stringify({
   date: "2026-04-12",
   time: "08:30:00",
   target_date: "2026-04-13",
-  tickets_sold_today: 100,
+  tickets_sold_for_target_date: 100,
   total_capacity: 1000,
   total_sold: 80,
   total_available: 920,
@@ -45,11 +45,11 @@ describe("parseJsonl", () => {
     expect(() => parseJsonl(bad)).toThrow();
   });
 
-  it("accepts null tickets_sold_today", () => {
+  it("accepts null tickets_sold_for_target_date", () => {
     const withNull = JSON.stringify({
       ...JSON.parse(validLine),
-      tickets_sold_today: null,
+      tickets_sold_for_target_date: null,
     });
-    expect(parseJsonl(withNull)[0]?.tickets_sold_today).toBeNull();
+    expect(parseJsonl(withNull)[0]?.tickets_sold_for_target_date).toBeNull();
   });
 });

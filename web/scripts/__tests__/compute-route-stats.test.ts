@@ -17,7 +17,7 @@ function makeReading(seed: ReadingSeed): Reading {
     date: seed.target_date,
     time: seed.time,
     target_date: seed.target_date,
-    tickets_sold_today: null,
+    tickets_sold_for_target_date: null,
     total_capacity,
     total_sold,
     total_available,

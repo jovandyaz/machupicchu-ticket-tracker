@@ -1,5 +1,4 @@
 #!/usr/bin/env node
-// Fetch Machu Picchu ticket availability per route and save to daily log
 const crypto = require("crypto");
 const fs = require("fs");
 const path = require("path");
@@ -17,6 +16,8 @@ const DEFAULT_HEADERS = {
   Referer: "https://www.tuboleto.cultura.pe/",
 };
 
+const FUTURE_DAYS_TO_FETCH = [1, 2, 3];
+
 async function fetchJSON(url, options = {}) {
   const resp = await fetch(url, {
     ...options,
@@ -26,19 +27,22 @@ async function fetchJSON(url, options = {}) {
   return resp.json();
 }
 
-async function generateHash() {
-  const timeData = await fetchJSON(`${API_BASE}/comunes/tiempo-servidor`);
-  const timestamp = timeData.tiempoServidor.toString();
+async function fetchServerTime() {
+  const data = await fetchJSON(`${API_BASE}/comunes/tiempo-servidor`);
+  return data.tiempoServidor;
+}
+
+function signRequest(timestamp) {
   const message = `${SECRET_KEY}:${timestamp}`;
   const hash = crypto
     .createHmac("sha256", SECRET_KEY)
     .update(message)
     .digest("base64");
-  return { hash, timestamp };
+  return { hash, timestamp: timestamp.toString() };
 }
 
-async function getAvailabilityByRoute(fecha) {
-  const { hash, timestamp } = await generateHash();
+async function getAvailabilityByRoute(fecha, serverMs) {
+  const { hash, timestamp } = signRequest(serverMs);
   return fetchJSON(`${API_BASE}/comunes/disponibilidad-actual`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
@@ -54,45 +58,17 @@ async function getAvailabilityByRoute(fecha) {
 
 async function getTicketsSoldByDate(fecha) {
   return fetchJSON(
-    `${API_BASE}/recaudador/ticket/tickets-por-fecha/${fecha}`
+    `${API_BASE}/recaudador/ticket/tickets-por-fecha/${fecha}`,
   );
 }
 
-function getNextDay(dateStr) {
-  const d = new Date(dateStr + "T12:00:00Z");
-  d.setDate(d.getDate() + 1);
+function addDays(dateStr, days) {
+  const d = new Date(`${dateStr}T12:00:00Z`);
+  d.setUTCDate(d.getUTCDate() + days);
   return d.toISOString().split("T")[0];
 }
 
-async function main() {
-  if (!SECRET_KEY) {
-    console.error("Error: TUBOLETO_SECRET_KEY env var is required");
-    process.exit(1);
-  }
-
-  // Get server time (Peru timezone, UTC-5)
-  const timeData = await fetchJSON(`${API_BASE}/comunes/tiempo-servidor`);
-  const serverMs = timeData.tiempoServidor;
-  const peruDate = new Date(serverMs - 5 * 60 * 60 * 1000);
-  const serverTime = peruDate.toISOString().replace("Z", "");
-  const date = serverTime.split("T")[0];
-  const time = serverTime.split("T")[1].split(".")[0];
-  const tomorrow = getNextDay(date);
-
-  const year = date.split("-")[0];
-  const month = date.split("-")[1];
-
-  // Create directory
-  const monthDir = path.join(DATA_DIR, year, month);
-  fs.mkdirSync(monthDir, { recursive: true });
-
-  // Fetch data
-  const [ticketsToday, routeAvailability] = await Promise.all([
-    getTicketsSoldByDate(date),
-    getAvailabilityByRoute(tomorrow),
-  ]);
-
-  // Build per-route breakdown
+function buildRecord({ serverTime, date, time, targetDate, ticketsForTarget, routeAvailability }) {
   const routes = Array.isArray(routeAvailability)
     ? routeAvailability.map((r) => ({
         route: r.ruta,
@@ -103,32 +79,67 @@ async function main() {
       }))
     : [];
 
-  const totalCapacity = routes.reduce((s, r) => s + r.capacity, 0);
-  const totalSold = routes.reduce((s, r) => s + r.sold, 0);
-  const totalAvailable = routes.reduce((s, r) => s + r.available, 0);
+  const total_capacity = routes.reduce((s, r) => s + r.capacity, 0);
+  const total_sold = routes.reduce((s, r) => s + r.sold, 0);
+  const total_available = routes.reduce((s, r) => s + r.available, 0);
 
-  const record = {
+  return {
     timestamp: serverTime,
     date,
     time,
-    target_date: tomorrow,
-    tickets_sold_today: ticketsToday.totalticket ?? null,
-    total_capacity: totalCapacity,
-    total_sold: totalSold,
-    total_available: totalAvailable,
+    target_date: targetDate,
+    tickets_sold_for_target_date: ticketsForTarget?.totalticket ?? null,
+    total_capacity,
+    total_sold,
+    total_available,
     routes,
   };
+}
 
-  // Append to daily JSONL file
+async function main() {
+  if (!SECRET_KEY) {
+    console.error("Error: TUBOLETO_SECRET_KEY env var is required");
+    process.exit(1);
+  }
+
+  const serverMs = await fetchServerTime();
+  const peruDate = new Date(serverMs - 5 * 60 * 60 * 1000);
+  const serverTime = peruDate.toISOString().replace("Z", "");
+  const date = serverTime.split("T")[0];
+  const time = serverTime.split("T")[1].split(".")[0];
+
+  const targetDates = FUTURE_DAYS_TO_FETCH.map((offset) => addDays(date, offset));
+
+  const results = await Promise.all(
+    targetDates.map(async (targetDate) => {
+      const [ticketsForTarget, routeAvailability] = await Promise.all([
+        getTicketsSoldByDate(targetDate),
+        getAvailabilityByRoute(targetDate, serverMs),
+      ]);
+      return buildRecord({
+        serverTime,
+        date,
+        time,
+        targetDate,
+        ticketsForTarget,
+        routeAvailability,
+      });
+    }),
+  );
+
+  const year = date.split("-")[0];
+  const month = date.split("-")[1];
+  const monthDir = path.join(DATA_DIR, year, month);
+  fs.mkdirSync(monthDir, { recursive: true });
   const dailyFile = path.join(monthDir, `${date}.jsonl`);
-  fs.appendFileSync(dailyFile, JSON.stringify(record) + "\n");
+  const payload = results.map((r) => JSON.stringify(r)).join("\n") + "\n";
+  fs.appendFileSync(dailyFile, payload);
 
-  console.log(
-    `[${serverTime}] Tickets sold today: ${ticketsToday.totalticket} | Tomorrow availability: ${totalSold}/${totalCapacity} sold`
-  );
-  routes.forEach((r) =>
-    console.log(`  ${r.route}: ${r.sold}/${r.capacity} sold, ${r.available} available`)
-  );
+  for (const record of results) {
+    console.log(
+      `[${record.timestamp}] target=${record.target_date} sold=${record.total_sold}/${record.total_capacity} (entregados:${record.tickets_sold_for_target_date})`,
+    );
+  }
 }
 
 main().catch((err) => {

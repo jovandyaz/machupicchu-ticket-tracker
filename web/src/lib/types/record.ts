@@ -15,7 +15,7 @@ export const ReadingSchema = z.object({
   date: z.string(),
   time: z.string(),
   target_date: z.string(),
-  tickets_sold_today: z.number().int().nullable(),
+  tickets_sold_for_target_date: z.number().int().nullable(),
   total_capacity: z.number().int(),
   total_sold: z.number().int(),
   total_available: z.number().int(),
